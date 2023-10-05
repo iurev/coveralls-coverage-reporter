@@ -4,9 +4,11 @@ on:
   pull_request:
     branches:
       - master
+      - sr-64-github-action-coverage-reporter-crashing-on-windows
   push:
     tags:
       - 'v*'
+
 
 permissions:
   contents: write
@@ -26,7 +28,6 @@ jobs:
           cd C:\ProgramData\chocolatey\lib\SQLite\tools
           ls 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\'
           & 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.37.32822\bin\Hostx64\x64\lib.exe' /DEF:sqlite3.def /OUT:sqlite3.lib /MACHINE:x64
-          cp sqlite3.lib 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.37.32822\lib\x64'
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -38,16 +39,29 @@ jobs:
 
       - run: shards install --production
 
-      - run: crystal build src\cli.cr -o dist\coveralls --release --static --no-debug --progress
-      - run: |
+      - name: Set path and build
+        run: |
+          $env:CRYSTAL_LIBRARY_PATH = (crystal env CRYSTAL_LIBRARY_PATH) + ";C:\ProgramData\chocolatey\lib\SQLite\tools"
+          crystal build src\cli.cr -o dist\coveralls --release --static --no-debug --progress -Dpreview_win32_delay_load
+
+      - name: copy dll and zip
+        run: |
           cd dist
-          tar -acf coveralls-windows.zip coveralls.exe
+          cp "C:\ProgramData\chocolatey\lib\SQLite\tools\sqlite3.dll" sqlite3.dll
+          tar -acf coveralls-windows.zip coveralls.exe sqlite3.dll
 
       - name: Upload exe
         uses: actions/upload-artifact@v3
         with:
           name: coveralls-windows.exe
           path: dist/coveralls.exe
+          if-no-files-found: error
+
+      - name: Upload sqlite3.dll
+        uses: actions/upload-artifact@v3
+        with:
+          name: sqlite3.dll
+          path: dist/sqlite3.dll
           if-no-files-found: error
 
       - name: Upload zip
@@ -122,6 +136,7 @@ jobs:
           'coveralls-linux.tar.gz#coveralls-linux.tar.gz'
           'coveralls-windows.exe#coveralls-windows.exe'
           'coveralls-windows.zip#coveralls-windows.zip'
+          'sqlite3.dll#sqlite3.dll'
           'coveralls-checksums.txt#coveralls-checksums.txt'
           --generate-notes
 
