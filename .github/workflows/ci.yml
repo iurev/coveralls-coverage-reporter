@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master sr-64-github-action-coverage-reporter-crashing-on-windows ]
   pull_request:
-    branches: [ master ]
+    branches: [ master sr-64-github-action-coverage-reporter-crashing-on-windows ]
 
 jobs:
   test:
