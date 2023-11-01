@@ -3,7 +3,7 @@ $ProgressPreference = "SilentlyContinue"
 
 Write-Output "Installing the Scoop package manager..."
 irm get.scoop.sh -outfile 'install-scoop.ps1'
-& "install-scoop.ps1" -RunAsAdmin
+.\install-scoop.ps1 -RunAsAdmin
 rm "install-scoop.ps1"
 
 Write-Output "Installing Crystal & dev tools ..."
