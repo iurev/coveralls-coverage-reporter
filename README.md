@@ -230,13 +230,26 @@ To get started you will need crystal [installed](https://crystal-lang.org/instal
 
 ```bash
 shards install
-make # bin/coverals will be created
+make # bin/coveralls will be created
 ```
 
 Run specs:
 
 ```bash
 make test
+```
+
+### Setup Windows in Vagrant
+
+```bash
+vagrant up
+
+# to re-run provision script
+vagrant provision
+
+# to access Windows VM
+vagrant ssh
+# type powershell<enter>
 ```
 
 ### Deployment
